@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start1": "node got-scraper-and-cheerio/main.js"
+    "start1": "node 1-got-scraper-and-cheerio/main.js",
+    "start2": "node 2-basics-of-crawling/main.js"
   },
   "repository": "https://github.com/holymark/web-scraping.git",
   "author": "Holy Mark <holymark0001@gmail.com>",
