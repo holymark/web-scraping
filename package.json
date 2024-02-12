@@ -1,0 +1,16 @@
+{
+  "name": "web-scraping",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "repository": "https://github.com/holymark/web-scraping.git",
+  "author": "Holy Mark <holymark0001@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.12",
+    "got-scraping": "^4.0.3"
+  }
+}
