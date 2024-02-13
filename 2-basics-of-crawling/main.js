@@ -1,5 +1,9 @@
+
+/**simple web crawler and scraper using got-scraper and cheerio */
 import { gotScraping } from "got-scraping";
 import * as cheerio from "cheerio";
+
+//-------------
 const BASE__URL = "https://warehouse-theme-metal.myshopify.com";
 const storeUrl = `${BASE__URL}/collections/sales`;
 
@@ -10,13 +14,26 @@ const storeUrl = `${BASE__URL}/collections/sales`;
 
   const productLinks = $("a.product-item__title");
 
+  // database assumption.
   const productsURLs = [];
 
+  /**
+   * loop through all <a className="a.product-item__title" href="https://....">link</a>
+   * Get the link attached and match with the BASE__URL
+   * Push it to our database : productURLs[]
+   */
   for (const link of productLinks) {
-    const url = $(link).attr("href");
+    const url  $(link).attr("href");
     const absoluteUrl = new URL(url, BASE__URL);
     productsURLs.push(absoluteUrl);
   }
+
+/**
+ * Iterate through all links from the database
+ * Crawl each link
+ * Scrape out the [ptoductTitle, vendor, price, reviewCount, description]
+ * Save To database.
+ */
   for (const productURL of productsURLs) {
     try {
       const productResponse = await gotScraping(productURL);
