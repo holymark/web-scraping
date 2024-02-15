@@ -23,7 +23,7 @@ const storeUrl = `${BASE__URL}/collections/sales`;
    * Push it to our database : productURLs[]
    */
   for (const link of productLinks) {
-    const url  $(link).attr("href");
+    const url = $(link).attr("href");
     const absoluteUrl = new URL(url, BASE__URL);
     productsURLs.push(absoluteUrl);
   }
