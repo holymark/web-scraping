@@ -1,10 +1,10 @@
-export const BASE_URL = 'https://www.amazon.com';
+export const BASE__URL = 'https://www.amazon.com';
 
 
 export const labels = {
-    START__PAGE:"START__",
-    PRODUCT__PAGE:"PRODUCT__"
+    START__: "START__",
+    DETAILS__: "DETAILS__"
 }
 
 
-export Keywords = ["keyboards"]
+export const Keywords = ["keyboards"]
