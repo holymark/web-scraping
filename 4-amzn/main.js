@@ -10,7 +10,6 @@ const crawler = new PlaywrightCrawler(({
 }))
 
 
-
 await crawler.addRequests([{
     url: `${BASE__URL}/s/ref=nb_sb_noss?url=search-alias%3Daps&field-keywords=${keyword}`,
     label: "START__",

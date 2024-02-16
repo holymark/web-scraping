@@ -1,0 +1,80 @@
+## refs: https://www.blog.datahut.co/post/scraping-amazon-product-category
+
+async def get_technical_details(page):
+    try:
+        # Get table containing technical details and its rows
+        table_element = await page.query_selector("#productDetails_techSpec_section_1")
+        rows = await table_element.query_selector_all("tr")
+
+        # Initialize dictionary to store technical details
+        technical_details = {}
+
+        # Iterate over rows and extract key-value pairs
+        for row in rows:
+            # Get key and value elements for each row
+            key_element = await row.query_selector("th")
+            value_element = await row.query_selector("td")
+
+            # Extract text content of key and value elements
+            key = await page.evaluate('(element) => element.textContent', key_element)
+            value = await page.evaluate('(element) => element.textContent', value_element)
+
+            # Strip whitespace and unwanted characters from value and add key-value pair to dictionary
+            value = value.strip().replace('\u200e', '')
+            technical_details[key.strip()] = value
+
+        # Extract required technical details (colour, capacity, wattage, country of origin)
+        colour = technical_details.get('Colour', 'Not Available')
+        if colour == 'Not Available':
+            # Get the colour element from the page and extract its inner text
+            colour_element = await page.query_selector('.po-color .a-span9')
+            if colour_element:
+                colour = await colour_element.inner_text()
+                colour = colour.strip()
+
+        capacity = technical_details.get('Capacity', 'Not Available')
+        if capacity == 'Not Available' or capacity == 'default':
+            # Get the capacity element from the page and extract its inner text
+            capacity_element = await page.query_selector('.po-capacity .a-span9')
+            if capacity_element:
+                capacity = await capacity_element.inner_text()
+                capacity = capacity.strip()
+
+        wattage = technical_details.get('Wattage', 'Not Available')
+        if wattage == 'Not Available' or wattage == 'default':
+            # Get the wattage element from the page and extract its inner text
+            wattage_elem = await page.query_selector('.po-wattage .a-span9')
+            if wattage_elem:
+                wattage = await wattage_elem.inner_text()
+                wattage = wattage.strip()
+
+        country_of_origin = technical_details.get('Country of Origin', 'Not Available')
+
+        # Return technical details and required fields
+        return technical_details, colour, capacity, wattage, country_of_origin
+
+    except:
+        # Set technical details to default values if table element or any required element is not found or text content cannot be extracted
+        return {}, 'Not Available', 'Not Available', 'Not Available', 'Not Available'
+
+
+
+# 2
+async def get_bullet_points(page):
+    bullet_points = []
+    try:
+        # Try to get the unordered list element containing the bullet points
+        ul_element = await page.query_selector('#feature-bullets ul.a-vertical')
+
+        # Get all the list item elements under the unordered list element
+        li_elements = await ul_element.query_selector_all('li')
+
+        # Loop through each list item element and append the inner text to the bullet points list
+        for li in li_elements:
+            bullet_points.append(await li.inner_text())
+    except:
+        # If the unordered list element or list item elements are not found, assign an empty list to bullet points
+        bullet_points = []
+
+    # Return the list of bullet points
+    return bullet_points
