@@ -1,4 +1,4 @@
-export const BASE__URL = 'https://www.amazon.com';
+export const BASE__URL = 'https://www.amazon.com/';
 
 
 export const labels = {

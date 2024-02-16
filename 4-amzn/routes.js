@@ -1,7 +1,8 @@
-import { createPlaywrightRouter , Dataset  } from "crawlee"
-import { labels } from "./const.js"
+import { createPlaywrightRouter, Dataset } from "crawlee";
+import { labels, BASE__URL } from "./const.js";
 
-export const router =  createPlaywrightRouter()
+export const router = createPlaywrightRouter();
+
 /**
  *         MRP:
  *         MRP_element = await page.query_selector(".a-price.a-text-price")
@@ -50,27 +51,76 @@ export const router =  createPlaywrightRouter()
 
 router.addHandler(labels.START__, async ({ request, log, page, parseWithCheerio, enqueueLinks }) => {
 
-    const $ = await parseWithCheerio()
-    const { url , userData} = request
-    log.debug(`Extracting Data: ${url}`)
+    const $ = await parseWithCheerio();
+    const { url, userData } = request;
+    log.info(`Extracting Data: ${url}`);
 
-    await page.waitForSelector(".a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal")
+    const links_selector = ".a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal";
+    const all_items = await page.$$(links_selector);
+    // await page.waitForSelector(linksSelector)
 
-        await  enqueueLinks ({
-            selector: ".a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal",
-            label: "START__"
-        })
-    
-    
-    
-})
+    for (let i = 0; i < all_items.length; ++i) {
+        const url = await all_items[i].getAttribute("href");
+        // console.log(url)
 
-router.addHandler(labels.DETAILS__,async ({}) => {
+        if (url.includes("/ref")) {
+            let full_url = BASE__URL + url.split("/ref")[0];
+            // console.log(full_url)
+            await enqueueLinks({ urls: [full_url] });
 
-})
+        } else if (url.includes("/sspa/click?ie")) {
 
-router.addDefaultHandler(async ({}) => {
+            // Extract the product ID and clean the URL
+            const product_ID = url.split("%2Fref%")[0];
+            const clean_url = product_ID.replace("%2Fdp%2F", /dp/);
+            const urls = clean_url.split("url=%2F")[1];
+            const full_urls = BASE__URL + urls;
+            // console.log(full_urls)
 
-})
+            await enqueueLinks({ urls: [full_urls] });
 
+        } else {
+            let full_url = BASE__URL + url;
+            console.log({ full_url });
+            await enqueueLinks({ urls: [full_url] });
+        }
 
+        /**
+         * const substrings = ['Basket', 'Accessories', 'accessories', 'Disposable', 'Paper', 'Reusable', 'Steamer', 'Silicone', 'Liners', 'Vegetable-Preparation', 'Pan', 'parchment', 'Parchment', 'Cutter', 'Tray', 'Cheat-Sheet', 'Reference-Various', 'Cover', 'Crisper', 'Replacement'];
+         * if (!substrings.some(substring => full_url.includes(substring))) {
+         * product_urls.add(full_url);
+         * }
+         */
+    }
+
+    const next_button = await page.$("a.s-pagination-item.s-pagination-next.s-pagination-button.s-pagination-separator");
+
+    if (next_button) {
+        const is_clickable = await next_button.isEnabled();
+
+        if (is_clickable) {
+            await next_button.click();
+            await page.waitForSelector(".a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal");
+        } else {
+            log.info("Next button is not clickable");
+        }
+    }
+    // if( next_button){
+    // await enqueueLinks({
+    // selector: "a.s-pagination-item.s-pagination-next.s-pagination-button.s-pagination-separator",
+    // label: "START__"
+    // })
+    // }
+    // await  enqueueLinks ({
+    // selector: linksSelector,
+    // label: "START__"
+    // })
+});
+
+router.addHandler(labels.DETAILS__, async ({ }) => {
+
+});
+
+router.addDefaultHandler(async ({ }) => {
+
+});
