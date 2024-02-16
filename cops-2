@@ -1,0 +1,46 @@
+// ref: same as ./cops
+
+async function getProductUrls(page) {
+    const allItems = await page.$$eval('.a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal', items =>
+        items.map(item => item.getAttribute('href'))
+    );
+    const productUrls = new Set();
+
+    for (const url of allItems) {
+        let fullUrl = '';
+
+        if (url.includes('/ref')) {
+            fullUrl = 'https://www.amazon.in' + url.split("/ref")[0];
+        } else if (url.includes('/sspa/click?ie')) {
+            const productId = url.split('%2Fref%')[0];
+            const cleanUrl = productId.replace("%2Fdp%2F", "/dp/");
+            const urls = cleanUrl.split('url=%2F')[1];
+            fullUrl = 'https://www.amazon.in/' + urls;
+        } else {
+            fullUrl = 'https://www.amazon.in' + url;
+        }
+
+        const substrings = ['Basket', 'Accessories', 'accessories', 'Disposable', 'Paper', 'Reusable', 'Steamer', 'Silicone', 'Liners', 'Vegetable-Preparation', 'Pan', 'parchment', 'Parchment', 'Cutter', 'Tray', 'Cheat-Sheet', 'Reference-Various', 'Cover', 'Crisper', 'Replacement'];
+        if (!substrings.some(substring => fullUrl.includes(substring))) {
+            productUrls.add(fullUrl);
+        }
+    }
+
+    const nextButton = await page.$("a.s-pagination-item.s-pagination-next.s-pagination-button.s-pagination-separator");
+    if (nextButton) {
+        const isButtonClickable = await nextButton.isVisible();
+        if (isButtonClickable) {
+            await nextButton.click();
+            await page.waitForSelector('.a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal');
+            const nextPageUrls = await getProductUrls(page);
+            nextPageUrls.forEach(url => productUrls.add(url));
+        } else {
+            console.log("Next button is not clickable");
+        }
+    }
+
+    const numProducts = productUrls.size;
+    console.log(`Scraped ${numProducts} products.`);
+
+    return Array.from(productUrls);
+}

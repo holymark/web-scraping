@@ -55,6 +55,25 @@ router.addHandler(labels.START__, async ({ request, log, page, parseWithCheerio,
     const { url, userData } = request;
     log.info(`Extracting Data: ${url}`);
 
+
+    await getProductURLs(page, log, enqueueLinks)
+});
+
+router.addHandler(labels.DETAILS__, async ({ }) => {
+
+});
+
+router.addDefaultHandler(async ({ }) => {
+
+});
+
+
+
+async function getProductURLs(page,logger, enqueueLinks){
+    // console.log("crawling urls....")
+
+    const product_URLs = new Set()
+
     const links_selector = ".a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal";
     const all_items = await page.$$(links_selector);
     // await page.waitForSelector(linksSelector)
@@ -62,11 +81,11 @@ router.addHandler(labels.START__, async ({ request, log, page, parseWithCheerio,
     for (let i = 0; i < all_items.length; ++i) {
         const url = await all_items[i].getAttribute("href");
         // console.log(url)
-
+     let full_url = ""
         if (url.includes("/ref")) {
-            let full_url = BASE__URL + url.split("/ref")[0];
+             full_url = BASE__URL + url.split("/ref")[0];
             // console.log(full_url)
-            await enqueueLinks({ urls: [full_url] });
+            // await enqueueLinks({ urls: [full_url] });
 
         } else if (url.includes("/sspa/click?ie")) {
 
@@ -74,17 +93,18 @@ router.addHandler(labels.START__, async ({ request, log, page, parseWithCheerio,
             const product_ID = url.split("%2Fref%")[0];
             const clean_url = product_ID.replace("%2Fdp%2F", /dp/);
             const urls = clean_url.split("url=%2F")[1];
-            const full_urls = BASE__URL + urls;
-            // console.log(full_urls)
+             full_url = BASE__URL + urls;
+            // console.log(full_url)
 
-            await enqueueLinks({ urls: [full_urls] });
+            // await enqueueLinks({ urls: [full_url] });
 
         } else {
-            let full_url = BASE__URL + url;
-            console.log({ full_url });
-            await enqueueLinks({ urls: [full_url] });
+             full_url = BASE__URL + url;
+            // console.log( full_url );
+            // await enqueueLinks({ urls: [full_url] });
         }
 
+        product_URLs.add(full_url)
         /**
          * const substrings = ['Basket', 'Accessories', 'accessories', 'Disposable', 'Paper', 'Reusable', 'Steamer', 'Silicone', 'Liners', 'Vegetable-Preparation', 'Pan', 'parchment', 'Parchment', 'Cutter', 'Tray', 'Cheat-Sheet', 'Reference-Various', 'Cover', 'Crisper', 'Replacement'];
          * if (!substrings.some(substring => full_url.includes(substring))) {
@@ -101,10 +121,18 @@ router.addHandler(labels.START__, async ({ request, log, page, parseWithCheerio,
         if (is_clickable) {
             await next_button.click();
             await page.waitForSelector(".a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal");
+            
+            const next_page_urls = await getProductURLs(page,logger, enqueueLinks) 
         } else {
             log.info("Next button is not clickable");
         }
+
     }
+    const number_of_products = product_URLs.size
+    
+    console.log(product_URLs);
+    console.log(`Scraped ${number_of_products} products.`);
+    return await Array.from(product_URLs)
     // if( next_button){
     // await enqueueLinks({
     // selector: "a.s-pagination-item.s-pagination-next.s-pagination-button.s-pagination-separator",
@@ -115,12 +143,5 @@ router.addHandler(labels.START__, async ({ request, log, page, parseWithCheerio,
     // selector: linksSelector,
     // label: "START__"
     // })
-});
 
-router.addHandler(labels.DETAILS__, async ({ }) => {
-
-});
-
-router.addDefaultHandler(async ({ }) => {
-
-});
+}
