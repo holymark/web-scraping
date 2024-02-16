@@ -56,7 +56,10 @@ router.addHandler(labels.START__, async ({ request, log, page, parseWithCheerio,
     log.info(`Extracting Data: ${url}`);
 
 
-    await getProductURLs(page, log, enqueueLinks)
+  const prod_urls =  await getProductURLs(page, log, enqueueLinks)
+  console.log(prod_urls)
+
+// for 
 });
 
 router.addHandler(labels.DETAILS__, async ({ }) => {
@@ -80,12 +83,12 @@ async function getProductURLs(page,logger, enqueueLinks){
 
     for (let i = 0; i < all_items.length; ++i) {
         const url = await all_items[i].getAttribute("href");
-        // console.log(url)
-     let full_url = ""
+
+        let full_url = ""
         if (url.includes("/ref")) {
              full_url = BASE__URL + url.split("/ref")[0];
-            // console.log(full_url)
-            // await enqueueLinks({ urls: [full_url] });
+             logger.info(`Fetching URL: ${full_url}`)
+             // await enqueueLinks({ urls: [full_url] });
 
         } else if (url.includes("/sspa/click?ie")) {
 
@@ -94,14 +97,14 @@ async function getProductURLs(page,logger, enqueueLinks){
             const clean_url = product_ID.replace("%2Fdp%2F", /dp/);
             const urls = clean_url.split("url=%2F")[1];
              full_url = BASE__URL + urls;
-            // console.log(full_url)
+             logger.info(`Fetching URL: ${full_url}`)
 
             // await enqueueLinks({ urls: [full_url] });
 
         } else {
              full_url = BASE__URL + url;
-            // console.log( full_url );
-            // await enqueueLinks({ urls: [full_url] });
+             logger.info(`Fetching URL: ${full_url}`)
+             // await enqueueLinks({ urls: [full_url] });
         }
 
         product_URLs.add(full_url)
@@ -130,7 +133,7 @@ async function getProductURLs(page,logger, enqueueLinks){
     }
     const number_of_products = product_URLs.size
     
-    console.log(product_URLs);
+    // console.log(product_URLs);
     console.log(`Scraped ${number_of_products} products.`);
     return await Array.from(product_URLs)
     // if( next_button){
