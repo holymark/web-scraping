@@ -6,5 +6,5 @@ export const labels = {
     DETAILS__: "DETAILS__"
 }
 
-
+export const tracking_tag = "aweworkz-20"
 export const Keywords = ["keyboards"]

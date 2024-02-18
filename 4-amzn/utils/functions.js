@@ -1,4 +1,6 @@
-export async function getProductURLs(page,logger, enqueueLinks){
+
+// ignore : https://aax-us-iad.amazon.com/x/c
+export async function getProductURLs(page,logger, enqueueLinks, BASE__URL){
 
     const product_URLs = new Set()
 
@@ -24,12 +26,14 @@ export async function getProductURLs(page,logger, enqueueLinks){
              full_url = BASE__URL + urls;
              logger.info(`Fetching URL: ${full_url}`)
 
-            // await enqueueLinks({ urls: [full_url] });
+            // ignore ads 
+        } else if (url.includes("https://aax-us-iad.amazon.com/x/c")){
 
-        } else {
-             full_url = BASE__URL + url;
-             logger.info(`Fetching URL: ${full_url}`)
-             // await enqueueLinks({ urls: [full_url] });
+          return false;
+        }
+        } else{
+
+            full_url = url;
         }
 
         product_URLs.add(full_url)
@@ -55,6 +59,4 @@ export async function getProductURLs(page,logger, enqueueLinks){
     
     console.log(`Scraped ${number_of_products} products.`);
     return await Array.from(product_URLs)
-    
-
 }
