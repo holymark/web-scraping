@@ -22,17 +22,20 @@ router.addHandler(
             );
 
             if (next_button) {
-              // const is_clickable = await next_button.isEnabled();
+              const is_clickable = await next_button.isEnabled();
 
-              console.log(next_button.getAttribute("href"))
-              // if (is_clickable) {
-              //   await next_button.click();
+              console.log("href: ",await next_button.getAttribute("href"))
+              if (is_clickable) {
+                console.log("can click next button")
+                await next_button.click();
                 
-              //   const links_selector = ".a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal";
-              //   const all_items = await page.waitForSelector(links_selector);
+                const links_selector = ".a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal";
+                const all_items = await page.waitForSelector(links_selector);
+
               //   // const all_items = await page.$$(links_selector);
 
               //   console.log(page.$$(links_selector))
+                console.log(all_items.length)
               //      for (let i = 0; i < all_items.length; ++i) {
               //           const url = await all_items[i].getAttribute("href");
               //           let full_url = "";
@@ -44,11 +47,11 @@ router.addHandler(
 
                
               //         console.log("Next button was clicked");
-              // }
+              }
              
-              // else {
-              //   console.log("Next button is not clickable");
-              // }
+              else {
+                console.log("Next button is not clickable");
+              }
 
             }else {
               console.log("No next button to click on.")
